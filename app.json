@@ -22,7 +22,13 @@
       "favicon": "./assets/RTlogo.png"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow RentTrack to access your photos so you can attach vehicle images."
+        }
+      ]
     ]
   }
 }

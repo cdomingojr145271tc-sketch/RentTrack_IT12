@@ -4,11 +4,13 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  Image,
   StyleSheet,
   ScrollView,
   Alert,
 } from "react-native";
 import { router } from "expo-router";
+import * as ImagePicker from "expo-image-picker";
 
 import { vehicles } from "../../data/vehicles";
 import { Colors } from "../../constants/colors";
@@ -18,6 +20,33 @@ export default function AddVehicle() {
   const [model, setModel] = useState("");
   const [plateNumber, setPlateNumber] = useState("");
   const [pricePerDay, setPricePerDay] = useState("");
+  const [imageUri, setImageUri] = useState(null);
+
+  const pickImage = async () => {
+    try {
+      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permission.granted) {
+        Alert.alert(
+          "Photo access required",
+          "Allow RentTrack to access your photos to attach a vehicle image."
+        );
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ["images"],
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets?.[0]) {
+        setImageUri(result.assets[0].uri);
+      }
+    } catch {
+      Alert.alert("Image unavailable", "Please try selecting the image again.");
+    }
+  };
 
   const handleSave = () => {
     if (!brand || !model || !plateNumber || !pricePerDay) {
@@ -32,7 +61,7 @@ export default function AddVehicle() {
       plateNumber,
       pricePerDay: Number(pricePerDay),
       status: "AVAILABLE",
-      image: null,
+      image: imageUri,
     };
 
     vehicles.push(newVehicle);
@@ -71,6 +100,34 @@ export default function AddVehicle() {
         onChangeText={setModel}
       />
 
+      <Text style={styles.inputLabel}>VEHICLE IMAGE</Text>
+      {imageUri ? (
+        <View style={styles.imagePreview}>
+          <Image source={{ uri: imageUri }} style={styles.previewImage} />
+          <TouchableOpacity
+            style={styles.removeImageButton}
+            onPress={() => setImageUri(null)}
+          >
+            <Text style={styles.removeImageText}>Remove image</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <TouchableOpacity style={styles.imagePicker} onPress={pickImage}>
+          <Text style={styles.imagePickerText}>Choose from photos</Text>
+        </TouchableOpacity>
+      )}
+
+      <Text style={styles.inputLabel}>VEHICLE TYPE</Text>
+      <TextInput
+        placeholder="e.g. SUV/SPORTS BIKE"
+        placeholderTextColor={Colors.muted}
+        style={styles.input}
+        value={pricePerDay}
+        onChangeText={setPricePerDay}
+        keyboardType="numeric"
+      />
+
+
       <Text style={styles.inputLabel}>PLATE NUMBER</Text>
       <TextInput
         placeholder="e.g. NCR 1912"
@@ -89,6 +146,7 @@ export default function AddVehicle() {
         onChangeText={setPricePerDay}
         keyboardType="numeric"
       />
+
 
       <TouchableOpacity style={styles.button} onPress={handleSave}>
         <Text style={styles.buttonText}>Save vehicle</Text>
@@ -142,6 +200,50 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     color: Colors.white,
     backgroundColor: Colors.surface,
+  },
+
+  imagePicker: {
+    height: 150,
+    borderWidth: 1,
+    borderStyle: "dashed",
+    borderColor: Colors.border,
+    borderRadius: 9,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: Colors.surface,
+  },
+
+  imagePickerText: {
+    color: Colors.primary,
+    fontWeight: "700",
+  },
+
+  imagePreview: {
+    height: 190,
+    borderRadius: 9,
+    overflow: "hidden",
+    backgroundColor: Colors.surface,
+  },
+
+  previewImage: {
+    width: "100%",
+    height: "100%",
+  },
+
+  removeImageButton: {
+    position: "absolute",
+    right: 10,
+    bottom: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 6,
+    backgroundColor: Colors.background,
+  },
+
+  removeImageText: {
+    color: Colors.white,
+    fontSize: 12,
+    fontWeight: "700",
   },
 
   button: {
