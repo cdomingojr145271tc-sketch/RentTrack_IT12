@@ -4,6 +4,7 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
+  Pressable,
   StyleSheet,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -12,6 +13,8 @@ import { router } from "expo-router";
 import { Colors } from "../../constants/colors";
 
 export default function Overview() {
+  const [profileMenuVisible, setProfileMenuVisible] = React.useState(false);
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -19,7 +22,19 @@ export default function Overview() {
         contentContainerStyle={styles.content}
       >
         <View style={styles.header}>
-          <Text style={styles.date}>WEDNESDAY, SEP 18</Text>
+          <View style={styles.headerTop}>
+            <Text style={styles.date}>WEDNESDAY, SEP 18</Text>
+
+            <TouchableOpacity
+              style={styles.profileButton}
+              onPress={() => setProfileMenuVisible((visible) => !visible)}
+              accessibilityRole="button"
+              accessibilityLabel="Open profile menu"
+              activeOpacity={0.8}
+            >
+              <Ionicons name="person-outline" size={20} color={Colors.primary} />
+            </TouchableOpacity>
+          </View>
 
           <Text style={styles.title}>Fleet overview</Text>
 
@@ -188,7 +203,50 @@ export default function Overview() {
 
         <View style={{ height: 20 }} />
       </ScrollView>
+
+      {profileMenuVisible && (
+        <>
+          <Pressable
+            style={styles.menuBackdrop}
+            onPress={() => setProfileMenuVisible(false)}
+            accessibilityLabel="Close profile menu"
+          />
+
+          <View style={styles.profileMenu}>
+            <View style={styles.profileSummary}>
+              <View style={styles.profileAvatar}>
+                <Ionicons name="person" size={18} color={Colors.primary} />
+              </View>
+              <Text style={styles.accountName}>Fleet Admin</Text>
+            </View>
+
+            <View style={styles.menuDivider} />
+
+            <MenuItem icon="person-outline" label="Profile" />
+            <MenuItem icon="settings-outline" label="Settings" />
+            <MenuItem icon="information-circle-outline" label="About us" />
+            <View style={styles.menuDivider} />
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={() => router.replace("/(auth)/signin")}
+              accessibilityRole="button"
+            >
+              <Ionicons name="log-out-outline" size={18} color={Colors.danger} />
+              <Text style={styles.logoutText}>Logout</Text>
+            </TouchableOpacity>
+          </View>
+        </>
+      )}
     </View>
+  );
+}
+
+function MenuItem({ icon, label }) {
+  return (
+    <TouchableOpacity style={styles.menuItem} accessibilityRole="button">
+      <Ionicons name={icon} size={18} color={Colors.muted} />
+      <Text style={styles.menuItemText}>{label}</Text>
+    </TouchableOpacity>
   );
 }
 
@@ -236,6 +294,92 @@ const styles = StyleSheet.create({
 
   header: {
     marginBottom: 26,
+  },
+
+  headerTop: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 7,
+  },
+
+  profileButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    backgroundColor: Colors.card,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  menuBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 1,
+  },
+
+  profileMenu: {
+    position: "absolute",
+    top: 76,
+    right: 22,
+    width: 224,
+    padding: 10,
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: 12,
+    zIndex: 2,
+    elevation: 8,
+  },
+
+  profileSummary: {
+    minHeight: 48,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    paddingHorizontal: 6,
+  },
+
+  profileAvatar: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: Colors.card,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  accountName: {
+    flex: 1,
+    color: Colors.white,
+    fontSize: 13,
+    fontWeight: "700",
+  },
+
+  menuDivider: {
+    height: 1,
+    backgroundColor: Colors.border,
+    marginVertical: 6,
+  },
+
+  menuItem: {
+    minHeight: 42,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 11,
+    paddingHorizontal: 8,
+  },
+
+  menuItemText: {
+    color: Colors.white,
+    fontSize: 12,
+  },
+
+  logoutText: {
+    color: Colors.danger,
+    fontSize: 12,
+    fontWeight: "600",
   },
 
   date: {
