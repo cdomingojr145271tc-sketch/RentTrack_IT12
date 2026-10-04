@@ -11,6 +11,14 @@ import { router } from "expo-router";
 import { Colors } from "../../constants/colors";
 
 export default function AddBooking() {
+  const returnToBookings = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace("/(tabs)/bookings");
+    }
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -19,7 +27,7 @@ export default function AddBooking() {
       >
       
         <TouchableOpacity
-          onPress={() => router.back()}
+          onPress={returnToBookings}
           style={styles.backButton}
         >
           <Text style={styles.back}>← Back</Text>
@@ -86,7 +94,7 @@ export default function AddBooking() {
         
         <TouchableOpacity
           style={styles.button}
-          onPress={() => router.back()}
+          onPress={returnToBookings}
         >
           <Text style={styles.buttonText}>
             Create booking

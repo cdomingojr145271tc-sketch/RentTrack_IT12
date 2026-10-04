@@ -20,6 +20,13 @@ const PAYMENT_METHODS = [
 
 export default function Checkout() {
   const [selectedMethod, setSelectedMethod] = useState("gcash");
+  const returnToBookings = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace("/(tabs)/bookings");
+    }
+  };
 
   const rental = {
     vehicle: "Ford Ranger",
@@ -44,7 +51,7 @@ export default function Checkout() {
       [
         {
           text: "OK",
-          onPress: () => router.back(),
+          onPress: returnToBookings,
         },
       ]
     );
@@ -58,7 +65,7 @@ export default function Checkout() {
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
-          onPress={() => router.back()}
+          onPress={returnToBookings}
         >
           <Ionicons name="arrow-back" size={20} color={Colors.white} />
         </TouchableOpacity>

@@ -15,6 +15,13 @@ import { Colors } from "../../constants/colors";
 
 export default function CustomerDetails() {
   const { id } = useLocalSearchParams();
+  const returnToCustomers = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace("/(tabs)/customers");
+    }
+  };
 
   const customer = customers.find(
     (item) => item.id === id
@@ -23,6 +30,9 @@ export default function CustomerDetails() {
   if (!customer) {
     return (
       <View style={styles.container}>
+        <TouchableOpacity onPress={returnToCustomers}>
+          <Text style={styles.back}>← Back</Text>
+        </TouchableOpacity>
         <Text style={styles.text}>
           Customer not found
         </Text>
@@ -32,7 +42,7 @@ export default function CustomerDetails() {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={() => router.back()}>
+      <TouchableOpacity onPress={returnToCustomers}>
         <Text style={styles.back}>← Back</Text>
       </TouchableOpacity>
 

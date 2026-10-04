@@ -11,16 +11,61 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
+import { useSQLiteContext } from "expo-sqlite";
 
-import { vehicles } from "../../data/vehicles";
 import { Colors } from "../../constants/colors";
+import { createVehicle } from "../../services/database";
+import { persistVehiclePhoto } from "../../services/vehiclePhotos";
 
 export default function AddVehicle() {
   const [brand, setBrand] = useState("");
   const [model, setModel] = useState("");
+  const [vehicleType, setVehicleType] = useState("");
   const [plateNumber, setPlateNumber] = useState("");
   const [pricePerDay, setPricePerDay] = useState("");
   const [imageUri, setImageUri] = useState(null);
+  const db = useSQLiteContext();
+
+  const returnToFleet = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace("/(tabs)/garage");
+    }
+  };
+
+  const handleSave = async () => {
+    const dailyRate = Number(pricePerDay);
+    if (
+      !brand.trim() ||
+      !model.trim() ||
+      !vehicleType.trim() ||
+      !plateNumber.trim() ||
+      !Number.isFinite(dailyRate) ||
+      dailyRate <= 0
+    ) {
+      Alert.alert("Missing or invalid info", "Complete all fields with a valid daily rate.");
+      return;
+    }
+
+    try {
+      const savedImageUri = await persistVehiclePhoto(imageUri);
+      await createVehicle(db, {
+        brand,
+        model,
+        vehicleType,
+        plateNumber,
+        dailyRate,
+        imageUri: savedImageUri,
+      });
+      returnToFleet();
+    } catch (error) {
+      const message = error?.message?.includes("UNIQUE")
+        ? "A vehicle with this plate number already exists."
+        : "The vehicle could not be saved. Please try again.";
+      Alert.alert("Save failed", message);
+    }
+  };
 
   const pickImage = async () => {
     try {
@@ -48,33 +93,12 @@ export default function AddVehicle() {
     }
   };
 
-  const handleSave = () => {
-    if (!brand || !model || !plateNumber || !pricePerDay) {
-      Alert.alert("Missing info", "Palihug i-fill ang tanan fields.");
-      return;
-    }
-
-    const newVehicle = {
-      id: Date.now().toString(),
-      brand,
-      model,
-      plateNumber,
-      pricePerDay: Number(pricePerDay),
-      status: "AVAILABLE",
-      image: imageUri,
-    };
-
-    vehicles.push(newVehicle);
-
-    router.back();
-  };
-
   return (
     <ScrollView
       style={styles.container}
       contentContainerStyle={styles.content}
     >
-      <TouchableOpacity onPress={() => router.back()}>
+      <TouchableOpacity onPress={returnToFleet}>
         <Text style={styles.back}>← Back</Text>
       </TouchableOpacity>
 
@@ -122,9 +146,8 @@ export default function AddVehicle() {
         placeholder="e.g. SUV/SPORTS BIKE"
         placeholderTextColor={Colors.muted}
         style={styles.input}
-        value={pricePerDay}
-        onChangeText={setPricePerDay}
-        keyboardType="numeric"
+        value={vehicleType}
+        onChangeText={setVehicleType}
       />
 
 

@@ -22,13 +22,23 @@
       "favicon": "./assets/RTlogo.png"
     },
     "plugins": [
-      "expo-router",
+      [
+        "expo-router",
+        {
+          "headers": {
+            "Cross-Origin-Embedder-Policy": "credentialless",
+            "Cross-Origin-Opener-Policy": "same-origin"
+          }
+        }
+      ],
       [
         "expo-image-picker",
         {
           "photosPermission": "Allow RentTrack to access your photos so you can attach vehicle images."
         }
-      ]
+      ],
+      "expo-sqlite",
+      "expo-font"
     ]
   }
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   View,
@@ -9,18 +9,50 @@ import {
 } from "react-native";
 
 import { router } from "expo-router";
+import {
+  addDatabaseChangeListener,
+  useSQLiteContext,
+} from "expo-sqlite";
 
 import Header from "../../components/header";
 import SearchBar from "../../components/searchbar";
 import VehicleCard from "../../components/vehiclecard";
 
-import { vehicles } from "../../data/vehicles";
+import { getVehicles } from "../../services/database";
 import { Colors } from "../../constants/colors";
 
 const FILTERS = ["All", "Available", "Reserved", "Rented"];
 
 export default function Garage() {
   const [activeFilterTab, setActiveFilterTab] = useState("All");
+  const [vehicles, setVehicles] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const db = useSQLiteContext();
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadVehicles = async () => {
+      try {
+        const rows = await getVehicles(db);
+        if (isMounted) setVehicles(rows);
+      } catch {
+        if (isMounted) setVehicles([]);
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    };
+
+    const subscription = addDatabaseChangeListener((event) => {
+      if (event.tableName === "vehicles") loadVehicles();
+    });
+
+    loadVehicles();
+    return () => {
+      isMounted = false;
+      subscription.remove();
+    };
+  }, [db]);
 
   const filteredVehicles =
     activeFilterTab === "All"
@@ -30,6 +62,13 @@ export default function Garage() {
             (vehicle.status || "AVAILABLE").toUpperCase() ===
             activeFilterTab.toUpperCase()
         );
+
+  const availableCount = vehicles.filter(
+    (vehicle) => vehicle.status === "AVAILABLE"
+  ).length;
+  const rentedCount = vehicles.filter(
+    (vehicle) => vehicle.status === "RENTED"
+  ).length;
 
   return (
     <View style={styles.container}>
@@ -42,6 +81,7 @@ export default function Garage() {
           <Header
             eyebrow="FLEET CONTROL"
             title="The garage"
+            fill
           />
 
           <TouchableOpacity
@@ -59,7 +99,7 @@ export default function Garage() {
           </Text>
 
           <Text style={styles.pulseText}>
-            5 ready · 1 out
+            {availableCount} ready · {rentedCount} out
           </Text>
 
           <View style={styles.live}>
@@ -110,12 +150,24 @@ export default function Garage() {
           </Text>
         </View>
 
-        {filteredVehicles.map((vehicle) => (
-          <VehicleCard
-            key={vehicle.id}
-            vehicle={vehicle}
-          />
-        ))}
+        {isLoading ? (
+          <Text style={styles.emptyText}>Loading fleet...</Text>
+        ) : filteredVehicles.length ? (
+          filteredVehicles.map((vehicle) => (
+            <VehicleCard
+              key={vehicle.id}
+              vehicle={vehicle}
+              onPress={() =>
+                router.push({
+                  pathname: "/vehicle/[id]",
+                  params: { id: String(vehicle.id) },
+                })
+              }
+            />
+          ))
+        ) : (
+          <Text style={styles.emptyText}>No vehicles found.</Text>
+        )}
       </ScrollView>
     </View>
   );
@@ -245,5 +297,12 @@ const styles = StyleSheet.create({
   count: {
     color: Colors.muted,
     fontSize: 9,
+  },
+
+  emptyText: {
+    color: Colors.muted,
+    fontSize: 12,
+    paddingVertical: 24,
+    textAlign: "center",
   },
 });

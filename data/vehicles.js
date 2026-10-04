@@ -5,6 +5,7 @@ export const vehicles = [
     name: "Fortuner",
     price: 4200,
     status: "AVAILABLE",
+    imageAssetKey: "toyota",
     image: require("../assets/toyota.jpg"),
   },
   {
@@ -13,6 +14,7 @@ export const vehicles = [
     name: "Ranger Wildtrak",
     price: 4600,
     status: "RENTED",
+    imageAssetKey: "ford",
     image: require("../assets/ford.jpg"),
   },
   {
@@ -21,6 +23,7 @@ export const vehicles = [
     name: "City",
     price: 3500,
     status: "RESERVED",
+    imageAssetKey: "honda",
     image: require("../assets/honda.jpg"),
   },
   {
@@ -29,6 +32,7 @@ export const vehicles = [
     name: "Montero Sport",
     price: 4800,
     status: "AVAILABLE",
+    imageAssetKey: "montero",
     image: require("../assets/montero.jpg"),
   },
   {
@@ -37,6 +41,7 @@ export const vehicles = [
     name: "Terra",
     price: 5000,
     status: "AVAILABLE",
+    imageAssetKey: "terra",
     image: require("../assets/terra.jpg"),
   },
   {
@@ -45,6 +50,7 @@ export const vehicles = [
     name: "Vios",
     price: 3000,
     status: "AVAILABLE",
+    imageAssetKey: "vios",
     image: require("../assets/vios.jpg"),
   },
 ];

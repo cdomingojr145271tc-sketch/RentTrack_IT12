@@ -1,11 +1,11 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
-export default function Header({ eyebrow, label, title, subtitle, right }) {
+export default function Header({ eyebrow, label, title, subtitle, right, fill }) {
   const eyebrowText = eyebrow || label;
 
   return (
-    <View style={styles.wrapper}>
+    <View style={[styles.wrapper, fill && styles.fillWrapper]}>
       <View style={styles.row}>
         <View style={styles.textContainer}>
           {eyebrowText ? (
@@ -28,6 +28,11 @@ export default function Header({ eyebrow, label, title, subtitle, right }) {
 const styles = StyleSheet.create({
   wrapper: {
     marginBottom: 20,
+  },
+
+  fillWrapper: {
+    flex: 1,
+    minWidth: 0,
   },
 
   row: {

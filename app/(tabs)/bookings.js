@@ -39,7 +39,7 @@ export default function Bookings() {
         contentContainerStyle={styles.content}
       >
         <View style={styles.headerRow}>
-          <Header eyebrow="RENTAL OPERATIONS" title="Bookings" />
+          <Header eyebrow="RENTAL OPERATIONS" title="Bookings" fill />
 
           <TouchableOpacity
             activeOpacity={0.8}

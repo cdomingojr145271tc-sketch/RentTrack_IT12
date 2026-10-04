@@ -7,12 +7,23 @@ import {
   Pressable,
 } from "react-native";
 
+const VEHICLE_IMAGES = {
+  toyota: require("../assets/toyota.jpg"),
+  ford: require("../assets/ford.jpg"),
+  honda: require("../assets/honda.jpg"),
+  montero: require("../assets/montero.jpg"),
+  terra: require("../assets/terra.jpg"),
+  vios: require("../assets/vios.jpg"),
+};
+
 export default function VehicleCard({
   vehicle,
   onPress,
 }) {
   const {
     image,
+    imageUri,
+    imageAssetKey,
     brand,
     name,
     price,
@@ -26,6 +37,14 @@ export default function VehicleCard({
       ? "#F0C94A"
       : "#B8FF2C";
 
+  const imageSource = imageUri
+    ? { uri: imageUri }
+    : imageAssetKey
+    ? VEHICLE_IMAGES[imageAssetKey]
+    : typeof image === "string"
+    ? { uri: image }
+    : image;
+
   return (
     <Pressable
       onPress={onPress}
@@ -35,13 +54,9 @@ export default function VehicleCard({
       ]}
     >
       <View style={styles.imageContainer}>
-        {image ? (
+        {imageSource ? (
           <Image
-            source={
-              typeof image === "string"
-                ? { uri: image }
-                : image
-            }
+            source={imageSource}
             style={styles.image}
             resizeMode="cover"
           />

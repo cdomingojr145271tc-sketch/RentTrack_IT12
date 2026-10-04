@@ -10,9 +10,17 @@ import { router } from "expo-router";
 import { Colors } from "../../constants/colors";
 
 export default function AddCustomer() {
+  const returnToCustomers = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace("/(tabs)/customers");
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={() => router.back()}>
+      <TouchableOpacity onPress={returnToCustomers}>
         <Text style={styles.back}>← Back</Text>
       </TouchableOpacity>
 

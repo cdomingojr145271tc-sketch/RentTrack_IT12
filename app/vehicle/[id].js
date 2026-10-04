@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -6,26 +7,52 @@ import {
 } from "react-native";
 
 import { useLocalSearchParams, router } from "expo-router";
+import { useSQLiteContext } from "expo-sqlite";
 
-import { vehicles } from "../../data/vehicles";
 import { Colors } from "../../constants/colors";
+import { getVehicleById } from "../../services/database";
 
 export default function VehicleDetails() {
   const { id } = useLocalSearchParams();
+  const db = useSQLiteContext();
+  const [vehicle, setVehicle] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const returnToFleet = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace("/(tabs)/garage");
+    }
+  };
 
-  const vehicle = vehicles.find(
-    (item) => item.id === id
-  );
+  useEffect(() => {
+    let isMounted = true;
+
+    getVehicleById(db, id)
+      .then((row) => {
+        if (isMounted) setVehicle(row);
+      })
+      .catch(() => {
+        if (isMounted) setVehicle(null);
+      })
+      .finally(() => {
+        if (isMounted) setIsLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [db, id]);
 
   if (!vehicle) {
     return (
       <View style={styles.container}>
-        <TouchableOpacity onPress={() => router.back()}>
+        <TouchableOpacity onPress={returnToFleet}>
           <Text style={styles.back}>← Back</Text>
         </TouchableOpacity>
 
         <Text style={styles.text}>
-          Vehicle not found
+          {isLoading ? "Loading vehicle..." : "Vehicle not found"}
         </Text>
       </View>
     );
@@ -33,14 +60,14 @@ export default function VehicleDetails() {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={() => router.back()}>
+      <TouchableOpacity onPress={returnToFleet}>
         <Text style={styles.back}>← Back</Text>
       </TouchableOpacity>
 
       <Text style={styles.label}>VEHICLE</Text>
 
       <Text style={styles.title}>
-        {vehicle.model}
+        {vehicle.name}
       </Text>
 
       <View style={styles.card}>
@@ -49,13 +76,15 @@ export default function VehicleDetails() {
         </Text>
 
         <Text style={styles.plate}>
-          {vehicle.plateNumber}
+          {vehicle.plateNumber || "No plate number"}
         </Text>
 
         <Text style={styles.price}>
-          PHP {vehicle.pricePerDay.toLocaleString()}
+          PHP {Number(vehicle.price).toLocaleString()}
           {" / day"}
         </Text>
+
+        <Text style={styles.type}>{vehicle.vehicleType}</Text>
 
         <Text style={styles.status}>
           {vehicle.status}
@@ -120,6 +149,11 @@ const styles = StyleSheet.create({
   status: {
     color: Colors.primary,
     marginTop: 20,
+  },
+
+  type: {
+    color: Colors.muted,
+    marginTop: 8,
   },
 
   text: {

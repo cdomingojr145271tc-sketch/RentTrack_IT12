@@ -25,6 +25,7 @@ export default function Customers() {
           <Header
             label="CLIENT RECORDS"
             title="Customers"
+            fill
           />
 
           <TouchableOpacity

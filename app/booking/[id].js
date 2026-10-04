@@ -15,6 +15,13 @@ import { Colors } from "../../constants/colors";
 
 export default function BookingDetails() {
   const { id } = useLocalSearchParams();
+  const returnToBookings = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace("/(tabs)/bookings");
+    }
+  };
 
   const booking = bookings.find(
     (item) => item.id === id
@@ -23,6 +30,9 @@ export default function BookingDetails() {
   if (!booking) {
     return (
       <View style={styles.container}>
+        <TouchableOpacity onPress={returnToBookings}>
+          <Text style={styles.back}>← Back</Text>
+        </TouchableOpacity>
         <Text style={styles.text}>
           Booking not found
         </Text>
@@ -32,7 +42,7 @@ export default function BookingDetails() {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={() => router.back()}>
+      <TouchableOpacity onPress={returnToBookings}>
         <Text style={styles.back}>← Back</Text>
       </TouchableOpacity>
 

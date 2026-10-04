@@ -11,6 +11,13 @@ import { Colors } from "../../constants/colors";
 
 export default function Register() {
   const [agreed, setAgreed] = useState(false);
+  const returnToSignIn = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace("/(auth)/signin");
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -74,7 +81,7 @@ export default function Register() {
           Already have an account?{" "}
           <Text
             style={styles.link}
-            onPress={() => router.back()}
+            onPress={returnToSignIn}
           >
             Sign In
           </Text>
