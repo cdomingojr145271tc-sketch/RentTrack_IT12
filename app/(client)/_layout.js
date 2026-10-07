@@ -2,25 +2,22 @@ import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../../constants/colors";
 
-export default function TabsLayout() {
+export default function ClientLayout() {
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-
         tabBarActiveTintColor: Colors.primary,
-        tabBarInactiveTintColor: "#53665E",
-
+        tabBarInactiveTintColor: "#718078",
         tabBarStyle: {
           backgroundColor: "#06130E",
-          borderTopColor: "#20362D",
-          height: 72,
+          borderTopColor: Colors.border,
+          height: 70,
           paddingBottom: 8,
           paddingTop: 8,
         },
-
         tabBarLabelStyle: {
-          fontSize: 9,
+          fontSize: 10,
           fontWeight: "600",
         },
       }}
@@ -28,63 +25,40 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Overview",
+          title: "Discover",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="grid-outline" color={color} size={size} />
+            <Ionicons name="compass-outline" color={color} size={size} />
           ),
         }}
       />
-
       <Tabs.Screen
-        name="garage"
+        name="vehicles"
         options={{
-          title: "Fleet",
+          title: "Vehicles",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="car-outline" color={color} size={size} />
           ),
         }}
       />
-
       <Tabs.Screen
         name="bookings"
         options={{
-          title: "Bookings",
+          title: "My trips",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="calendar-outline" color={color} size={size} />
           ),
         }}
       />
-
       <Tabs.Screen
-        name="customers"
+        name="account"
         options={{
-          title: "Customers",
+          title: "Account",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="people-outline" color={color} size={size} />
+            <Ionicons name="person-circle-outline" color={color} size={size} />
           ),
         }}
       />
-
-      <Tabs.Screen
-        name="payment"
-        options={{
-          title: "Payments",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="card-outline" color={color} size={size} />
-          ),
-        }}
-      />
-
-      <Tabs.Screen
-        name="reports"
-        options={{
-          title: "Reports",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="bar-chart-outline" color={color} size={size} />
-          ),
-        }}
-      />
-
+      <Tabs.Screen name="reserve" options={{ href: null }} />
     </Tabs>
   );
 }

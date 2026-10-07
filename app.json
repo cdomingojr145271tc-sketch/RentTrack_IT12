@@ -37,6 +37,14 @@
           "photosPermission": "Allow RentTrack to access your photos so you can attach vehicle images."
         }
       ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow RentTrack to scan rental QR codes.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false
+        }
+      ],
       "expo-sqlite",
       "expo-font"
     ]

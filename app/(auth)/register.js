@@ -7,15 +7,49 @@ import {
   StyleSheet,
 } from "react-native";
 import { router } from "expo-router";
+import { useSQLiteContext } from "expo-sqlite";
 import { Colors } from "../../constants/colors";
+import { createClientProfile } from "../../services/database";
 
 export default function Register() {
+  const db = useSQLiteContext();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [agreed, setAgreed] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const [error, setError] = useState("");
   const returnToSignIn = () => {
     if (router.canGoBack()) {
       router.back();
     } else {
       router.replace("/(auth)/signin");
+    }
+  };
+
+  const createAccount = async () => {
+    if (!name.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setError("Enter your full name and a valid email address.");
+      return;
+    }
+    if (password.length < 6) {
+      setError("Use a password with at least 6 characters.");
+      return;
+    }
+    if (!agreed) {
+      setError("Please agree to the terms to continue.");
+      return;
+    }
+
+    setIsCreating(true);
+    setError("");
+    try {
+      await createClientProfile(db, { name, email });
+      router.replace("/(client)");
+    } catch (createError) {
+      setError(createError?.message || "The demo client account could not be created.");
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -27,7 +61,7 @@ export default function Register() {
         <Text style={styles.title}>Create your account</Text>
 
         <Text style={styles.description}>
-          Set up your workspace in just a minute.
+          Create a local demo profile that is shared with the RentTrack admin records.
         </Text>
 
         <Text style={styles.inputLabel}>FULL NAME</Text>
@@ -35,6 +69,8 @@ export default function Register() {
           placeholder="Juan Dela Cruz"
           placeholderTextColor={Colors.muted}
           style={styles.input}
+          value={name}
+          onChangeText={setName}
         />
 
         <Text style={styles.inputLabel}>EMAIL ADDRESS</Text>
@@ -42,6 +78,10 @@ export default function Register() {
           placeholder="you@company.com"
           placeholderTextColor={Colors.muted}
           style={styles.input}
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
         />
 
         <Text style={styles.inputLabel}>PASSWORD</Text>
@@ -50,6 +90,8 @@ export default function Register() {
           placeholderTextColor={Colors.muted}
           style={styles.input}
           secureTextEntry
+          value={password}
+          onChangeText={setPassword}
         />
 
         <TouchableOpacity
@@ -66,12 +108,14 @@ export default function Register() {
             <Text style={styles.link}>Privacy Policy.</Text>
           </Text>
         </TouchableOpacity>
+        {error ? <Text style={styles.error}>{error}</Text> : null}
 
         <TouchableOpacity
-          style={styles.button}
-          onPress={() => router.replace("/(tabs)")}
+          style={[styles.button, isCreating && styles.buttonDisabled]}
+          onPress={createAccount}
+          disabled={isCreating}
         >
-          <Text style={styles.buttonText}>Create account</Text>
+          <Text style={styles.buttonText}>{isCreating ? "Creating profile…" : "Create account"}</Text>
           <Text style={styles.buttonArrow}>→</Text>
         </TouchableOpacity>
 
@@ -187,6 +231,8 @@ const styles = StyleSheet.create({
     gap: 8,
     marginTop: 20,
   },
+  buttonDisabled: { opacity: 0.65 },
+  error: { color: Colors.danger, fontSize: 10, lineHeight: 15, marginTop: 12 },
 
   buttonText: {
     color: Colors.background,
